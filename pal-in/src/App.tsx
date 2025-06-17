@@ -45,6 +45,8 @@ function App() {
   const [project, setProject] = useState<PalletProject>(defaultProject)
   const fits = productFits(project)
   const [selectedLayer, setSelectedLayer] = useState<number | null>(null)
+  const [newLayerClass, setNewLayerClass] =
+    useState<'layer' | 'separator'>('layer')
 
   const updateDimensions = (key: keyof typeof project.dimensions, value: number) => {
     setProject((prev) => ({
@@ -92,8 +94,8 @@ function App() {
     }
   }
 
-  const addLayer = () => {
-    const base = 'layer'
+  const addLayer = (cls: 'layer' | 'separator' = 'layer') => {
+    const base = cls === 'separator' ? 'sep' : 'layer'
     let n = project.layerTypes.length + 1
     let name = `${base}${n}`
     const existing = new Set(project.layerTypes.map((l) => l.name))
@@ -101,7 +103,10 @@ function App() {
       n += 1
       name = `${base}${n}`
     }
-    const newLayer: LayerDefinition = { name, class: 'layer', pattern: [] }
+    const newLayer: LayerDefinition =
+      cls === 'separator'
+        ? { name, class: 'separator', height: 1 }
+        : { name, class: 'layer', pattern: [] }
     setProject((prev) => ({
       ...prev,
       layerTypes: [...prev.layerTypes, newLayer],
@@ -363,8 +368,23 @@ function App() {
           moveUp={moveLayerUp}
           moveDown={moveLayerDown}
         />
-        <div className="mt-2 flex gap-2">
-          <button className="border px-2 py-1" onClick={addLayer}>Add</button>
+        <div className="mt-2 flex gap-2 items-center">
+          <select
+            className="border"
+            value={newLayerClass}
+            onChange={(e) =>
+              setNewLayerClass(e.target.value as 'layer' | 'separator')
+            }
+          >
+            <option value="layer">Layer</option>
+            <option value="separator">Separator</option>
+          </select>
+          <button
+            className="border px-2 py-1"
+            onClick={() => addLayer(newLayerClass)}
+          >
+            Add
+          </button>
           {selectedLayer !== null && (
             <button
               className="border px-2 py-1"
