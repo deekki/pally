@@ -35,7 +35,20 @@ function App() {
       <div className="mb-4">
         <input type="file" accept="application/json" onChange={handleFile} />
       </div>
-      <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={handleSave} disabled={!project}>
+      {project && (
+        <div className="mb-4">
+          <p className="font-bold">{project.name}</p>
+          <p>
+            {project.dimensions.length} x {project.dimensions.width} /{' '}
+            {project.dimensions.maxLoadHeight}
+          </p>
+        </div>
+      )}
+      <button
+        className="bg-blue-500 text-white px-4 py-2 rounded"
+        onClick={handleSave}
+        disabled={!project}
+      >
         Zapisz
       </button>
     </div>
