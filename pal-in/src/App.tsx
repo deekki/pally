@@ -2,12 +2,17 @@ import { useState } from 'react'
 import './App.css'
 import { loadFromFile, saveToFile } from './data/jsonIO'
 import type { PalletProject, LayerDefinition } from './data/interfaces'
-import { PPB_VERSION_NO, LABEL_ORIENTATIONS } from './data/interfaces'
+import {
+  PPB_VERSION_NO,
+  LABEL_ORIENTATIONS,
+  type AltLayout,
+} from './data/interfaces'
 import { productFits } from './productFit'
 import LayerList from './LayerList'
 import PatternEditor from './PatternEditor'
 
 const MM_TO_INCH = 25.4
+const ALT_LAYOUTS: AltLayout[] = ['default', 'alternate', 'mirror']
 
 const defaultProject: PalletProject = {
   name: 'New Project',
@@ -319,6 +324,28 @@ function App() {
           </select>
         </div>
         <div>
+          <label className="mr-2">Alt layout</label>
+          <select
+            className="border"
+            value={project.guiSettings.altLayout ?? 'default'}
+            onChange={(e) =>
+              setProject((prev) => ({
+                ...prev,
+                guiSettings: {
+                  ...prev.guiSettings,
+                  altLayout: e.target.value as AltLayout,
+                },
+              }))
+            }
+          >
+            {ALT_LAYOUTS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
           <label className="mr-2">Max grip</label>
           <input
             className="border"
@@ -370,6 +397,9 @@ function App() {
                   (l) => l.name === project.layers[selectedLayer],
                 )!
               }
+              altLayout={project.guiSettings.altLayout ?? 'default'}
+              dimensions={project.dimensions}
+              productDimensions={project.productDimensions}
               onChange={(layer) => updateLayerDef(selectedLayer, layer)}
             />
           </div>

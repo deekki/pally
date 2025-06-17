@@ -1,23 +1,55 @@
 import React, { useState } from 'react'
-import type { LayerDefinition, PatternItem } from './data/interfaces'
+import type {
+  LayerDefinition,
+  PatternItem,
+  AltLayout,
+  Dimensions,
+  ProductDimensions,
+} from './data/interfaces'
 
 interface Props {
   layer: LayerDefinition
+  altLayout: AltLayout
+  dimensions: Dimensions
+  productDimensions: ProductDimensions
   onChange: (layer: LayerDefinition) => void
 }
 
 const stringify = (p?: PatternItem[]) => (p ? JSON.stringify(p, null, 2) : '')
 
-export default function PatternEditor({ layer, onChange }: Props) {
+function mirrorPattern(
+  pattern: PatternItem[],
+  palletWidth: number,
+  itemWidth: number,
+) {
+  return pattern.map((it) => ({
+    ...it,
+    x: palletWidth - itemWidth - it.x,
+  }))
+}
+
+export default function PatternEditor({
+  layer,
+  altLayout,
+  dimensions,
+  productDimensions,
+  onChange,
+}: Props) {
   const [patternText, setPatternText] = useState(stringify(layer.pattern))
   const [altText, setAltText] = useState(stringify(layer.altPattern))
 
   const applyChanges = () => {
     try {
+      const parsedPattern = patternText ? JSON.parse(patternText) : undefined
+      const altPattern = altText
+        ? JSON.parse(altText)
+        : altLayout === 'mirror' && parsedPattern
+        ? mirrorPattern(parsedPattern, dimensions.width, productDimensions.width)
+        : undefined
       const newLayer: LayerDefinition = {
         ...layer,
-        pattern: patternText ? JSON.parse(patternText) : undefined,
-        altPattern: altText ? JSON.parse(altText) : undefined,
+        pattern: parsedPattern,
+        altPattern,
       }
       onChange(newLayer)
     } catch {
