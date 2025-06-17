@@ -26,7 +26,7 @@ export interface PatternItem {
   /** y position on the pallet */
   y: number
   /** rotation */
-  r: number
+  r: number | number[]
   /** optional grouping id */
   g?: number
   /** optional flip/index */

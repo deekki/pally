@@ -18,6 +18,13 @@ const baseProject: PalletProject = {
   layers: ['layer1'],
 }
 
+const arrayRotProject: PalletProject = {
+  ...baseProject,
+  layerTypes: [
+    { name: 'layer1', class: 'layer', pattern: [{ x: 0, y: 0, r: [0, 90] }] },
+  ],
+}
+
 describe('loadFromFile', () => {
   test('parses valid project', async () => {
     const file = new File([JSON.stringify(baseProject)], 'p.json')
@@ -25,6 +32,14 @@ describe('loadFromFile', () => {
     expect(result.name).toBe('Test Project')
     expect(result.guiSettings.PPB_VERSION_NO).toBe(PPB_VERSION_NO)
     expect(result.productDimensions.boxPadding).toBe(0)
+  })
+
+  test('parses project with rotation array', async () => {
+    const file = new File([JSON.stringify(arrayRotProject)], 'p.json')
+    const result = await loadFromFile(file)
+    const item = result.layerTypes[0].pattern![0]
+    expect(Array.isArray(item.r)).toBe(true)
+    expect(item.r).toEqual([0, 90])
   })
 
   test('rejects unsupported version', async () => {
@@ -43,6 +58,18 @@ describe('loadFromFile', () => {
     }
     const file = new File([JSON.stringify(bad)], 'p.json')
     await expect(loadFromFile(file)).rejects.toThrow('Pattern item outside pallet bounds')
+  })
+
+  test('rejects invalid rotation', async () => {
+    const bad = {
+      ...baseProject,
+      layerTypes: [
+        { name: 'l', class: 'layer', pattern: [{ x: 0, y: 0, r: 400 }] },
+      ],
+      layers: ['l'],
+    }
+    const file = new File([JSON.stringify(bad)], 'p.json')
+    await expect(loadFromFile(file)).rejects.toThrow('Invalid rotation value')
   })
 
   test('rejects invalid boxPadding', async () => {

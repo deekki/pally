@@ -20,6 +20,13 @@ function validatePattern(
     ) {
       throw new Error('Pattern item outside pallet bounds')
     }
+
+    const rotations = Array.isArray(item.r) ? item.r : [item.r]
+    for (const rot of rotations) {
+      if (typeof rot !== 'number' || rot < 0 || rot >= 360) {
+        throw new Error('Invalid rotation value')
+      }
+    }
   }
 }
 
