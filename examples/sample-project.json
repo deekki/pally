@@ -1,0 +1,30 @@
+{
+  "name": "Example Project",
+  "description": "Sample project for quick testing",
+  "dimensions": {
+    "length": 1200,
+    "width": 800,
+    "maxLoadHeight": 1600,
+    "palletHeight": 150
+  },
+  "productDimensions": {
+    "length": 200,
+    "width": 200,
+    "height": 100,
+    "weight": 5
+  },
+  "maxGrip": 0,
+  "guiSettings": {
+    "PPB_VERSION_NO": "3.1.1"
+  },
+  "layerTypes": [
+    {
+      "name": "default",
+      "class": "layer",
+      "pattern": [
+        { "x": 0, "y": 0, "r": 0 }
+      ]
+    }
+  ],
+  "layers": ["default"]
+}

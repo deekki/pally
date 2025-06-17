@@ -28,3 +28,7 @@ Create a production build:
 npm run build
 ```
 
+
+## Example Project
+
+A sample pallet project JSON is provided in `examples/sample-project.json`. Load this file in the demo application to quickly verify that loading and saving work.
