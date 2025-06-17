@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import './App.css'
 import { loadFromFile, saveToFile } from './data/jsonIO'
-import type { PalletProject } from './data/interfaces'
+import type { PalletProject, LayerDefinition } from './data/interfaces'
 import { PPB_VERSION_NO, LABEL_ORIENTATIONS } from './data/interfaces'
 import { productFits } from './productFit'
+import LayerList from './LayerList'
+import PatternEditor from './PatternEditor'
 
 const MM_TO_INCH = 25.4
 
@@ -36,6 +38,7 @@ const defaultProject: PalletProject = {
 function App() {
   const [project, setProject] = useState<PalletProject>(defaultProject)
   const fits = productFits(project)
+  const [selectedLayer, setSelectedLayer] = useState<number | null>(null)
 
   const updateDimensions = (key: keyof typeof project.dimensions, value: number) => {
     setProject((prev) => ({
@@ -81,6 +84,61 @@ function App() {
       overhang: p.overhang !== undefined ? convert(p.overhang) : p.overhang,
       maxGrip: p.maxGrip !== undefined ? convert(p.maxGrip) : p.maxGrip,
     }
+  }
+
+  const addLayer = () => {
+    const base = 'layer'
+    let n = project.layerTypes.length + 1
+    let name = `${base}${n}`
+    const existing = new Set(project.layerTypes.map((l) => l.name))
+    while (existing.has(name)) {
+      n += 1
+      name = `${base}${n}`
+    }
+    const newLayer: LayerDefinition = { name, class: 'layer', pattern: [] }
+    setProject((prev) => ({
+      ...prev,
+      layerTypes: [...prev.layerTypes, newLayer],
+      layers: [...prev.layers, name],
+    }))
+    setSelectedLayer(project.layers.length)
+  }
+
+  const removeLayer = (index: number) => {
+    const name = project.layers[index]
+    setProject((prev) => ({
+      ...prev,
+      layers: prev.layers.filter((_, i) => i !== index),
+      layerTypes: prev.layerTypes.filter((lt) => lt.name !== name),
+    }))
+    setSelectedLayer(null)
+  }
+
+  const moveLayerUp = (index: number) => {
+    if (index === 0) return
+    setProject((prev) => {
+      const arr = [...prev.layers]
+      ;[arr[index - 1], arr[index]] = [arr[index], arr[index - 1]]
+      return { ...prev, layers: arr }
+    })
+    setSelectedLayer((sel) => (sel === index ? index - 1 : sel === index - 1 ? index : sel))
+  }
+
+  const moveLayerDown = (index: number) => {
+    if (index === project.layers.length - 1) return
+    setProject((prev) => {
+      const arr = [...prev.layers]
+      ;[arr[index + 1], arr[index]] = [arr[index], arr[index + 1]]
+      return { ...prev, layers: arr }
+    })
+    setSelectedLayer((sel) => (sel === index ? index + 1 : sel === index + 1 ? index : sel))
+  }
+
+  const updateLayerDef = (index: number, layer: LayerDefinition) => {
+    setProject((prev) => {
+      const types = prev.layerTypes.map((lt) => (lt.name === prev.layers[index] ? layer : lt))
+      return { ...prev, layerTypes: types }
+    })
   }
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -283,6 +341,39 @@ function App() {
           />
           <label htmlFor="maxgripauto">Auto max grip</label>
         </div>
+      </div>
+
+      <div className="mb-4 max-w-md mx-auto">
+        <LayerList
+          layers={project.layers}
+          onSelect={setSelectedLayer}
+          selected={selectedLayer}
+          moveUp={moveLayerUp}
+          moveDown={moveLayerDown}
+        />
+        <div className="mt-2 flex gap-2">
+          <button className="border px-2 py-1" onClick={addLayer}>Add</button>
+          {selectedLayer !== null && (
+            <button
+              className="border px-2 py-1"
+              onClick={() => removeLayer(selectedLayer)}
+            >
+              Remove
+            </button>
+          )}
+        </div>
+        {selectedLayer !== null && (
+          <div className="mt-2">
+            <PatternEditor
+              layer={
+                project.layerTypes.find(
+                  (l) => l.name === project.layers[selectedLayer],
+                )!
+              }
+              onChange={(layer) => updateLayerDef(selectedLayer, layer)}
+            />
+          </div>
+        )}
       </div>
       <div className="mb-4">
         <p className="font-bold">{project.name}</p>
