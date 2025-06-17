@@ -59,6 +59,8 @@ export interface PalletProject {
   units?: 'mm' | 'inch'
   /** product overhang beyond pallet edge */
   overhang?: number
+  /** padding around product boxes used when packing */
+  boxPadding?: number
   guiSettings: GuiSettings
   layerTypes: LayerDefinition[]
   layers: string[]

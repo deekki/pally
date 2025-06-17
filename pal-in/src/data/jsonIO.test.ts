@@ -37,6 +37,19 @@ describe('loadFromFile', () => {
     const file = new File([JSON.stringify(bad)], 'p.json')
     await expect(loadFromFile(file)).rejects.toThrow('Pattern item outside pallet bounds')
   })
+
+  test('reads boxPadding value', async () => {
+    const proj = { ...baseProject, boxPadding: 5 }
+    const file = new File([JSON.stringify(proj)], 'p.json')
+    const result = await loadFromFile(file)
+    expect(result.boxPadding).toBe(5)
+  })
+
+  test('rejects negative boxPadding', async () => {
+    const proj = { ...baseProject, boxPadding: -1 }
+    const file = new File([JSON.stringify(proj)], 'p.json')
+    await expect(loadFromFile(file)).rejects.toThrow('Invalid boxPadding value')
+  })
 })
 
 describe('saveToFile', () => {

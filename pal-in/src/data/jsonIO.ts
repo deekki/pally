@@ -65,6 +65,11 @@ export async function loadFromFile(file: File): Promise<PalletProject> {
   if (data.maxGripAuto !== undefined && typeof data.maxGripAuto !== 'boolean') {
     throw new Error('Invalid maxGripAuto flag')
   }
+  if (data.boxPadding !== undefined) {
+    if (typeof data.boxPadding !== 'number' || data.boxPadding < 0) {
+      throw new Error('Invalid boxPadding value')
+    }
+  }
   if (
     data.labelOrientation !== undefined &&
     !VALID_LABEL_ORIENTATIONS.has(data.labelOrientation)

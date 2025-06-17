@@ -23,6 +23,7 @@ const defaultProject: PalletProject = {
   labelOrientation: '0',
   units: 'mm',
   overhang: 0,
+  boxPadding: 0,
   guiSettings: { PPB_VERSION_NO },
   layerTypes: [],
   layers: [],
@@ -65,6 +66,8 @@ function App() {
         height: convert(p.productDimensions.height),
       },
       overhang: p.overhang !== undefined ? convert(p.overhang) : p.overhang,
+      boxPadding:
+        p.boxPadding !== undefined ? convert(p.boxPadding) : p.boxPadding,
     }
   }
 
@@ -75,6 +78,7 @@ function App() {
         const proj = await loadFromFile(file)
         if (!proj.units) proj.units = 'mm'
         if (proj.overhang === undefined) proj.overhang = 0
+        if (proj.boxPadding === undefined) proj.boxPadding = 0
         setProject(proj)
         alert('Loaded project ' + proj.name)
       } catch (err) {
@@ -182,6 +186,17 @@ function App() {
             type="number"
             value={project.productDimensions.weight}
             onChange={(e) => updateProduct('weight', e.target.valueAsNumber)}
+          />
+        </div>
+        <div>
+          <label className="mr-2">Box padding</label>
+          <input
+            className="border"
+            type="number"
+            value={project.boxPadding}
+            onChange={(e) =>
+              setProject((prev) => ({ ...prev, boxPadding: e.target.valueAsNumber }))
+            }
           />
         </div>
         <div>
