@@ -106,6 +106,9 @@ export async function loadFromFile(file: File): Promise<PalletProject> {
     if (!VALID_LAYER_CLASS.has(lt.class)) {
       throw new Error('Invalid layer class: ' + lt.class)
     }
+    if (lt.class === 'separator' && lt.height === undefined) {
+      lt.height = 1
+    }
     if (lt.height !== undefined && lt.height < 0) {
       throw new Error('Invalid layer height')
     }

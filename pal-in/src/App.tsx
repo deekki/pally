@@ -31,7 +31,13 @@ const defaultProject: PalletProject = {
   maxGrip: 0,
   maxGripAuto: false,
   guiSettings: { PPB_VERSION_NO },
-  layerTypes: [],
+  layerTypes: [
+    {
+      name: 'shim',
+      class: 'separator',
+      height: 1,
+    },
+  ],
   layers: [],
 }
 
@@ -153,6 +159,11 @@ function App() {
           proj.productDimensions.boxPadding = 0
         if (proj.maxGrip === undefined) proj.maxGrip = 0
         if (proj.maxGripAuto === undefined) proj.maxGripAuto = false
+        for (const lt of proj.layerTypes) {
+          if (lt.class === 'separator' && lt.height === undefined) {
+            lt.height = 1
+          }
+        }
         setProject(proj)
         alert('Loaded project ' + proj.name)
       } catch (err) {

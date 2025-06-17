@@ -63,6 +63,46 @@ describe('loadFromFile', () => {
     const file = new File([JSON.stringify(bad)], 'p.json')
     await expect(loadFromFile(file)).rejects.toThrow('Invalid boxPadding value')
   })
+
+  test('allows separator layer with height', async () => {
+    const proj: PalletProject = {
+      ...baseProject,
+      layerTypes: [
+        { name: 'shim', class: 'separator', height: 2 },
+        ...baseProject.layerTypes,
+      ],
+    }
+    const file = new File([JSON.stringify(proj)], 'p.json')
+    const result = await loadFromFile(file)
+    const shim = result.layerTypes.find((lt) => lt.name === 'shim')!
+    expect(shim.height).toBe(2)
+  })
+
+  test('defaults separator height when missing', async () => {
+    const proj: PalletProject = {
+      ...baseProject,
+      layerTypes: [
+        { name: 'shim', class: 'separator' },
+        ...baseProject.layerTypes,
+      ],
+    }
+    const file = new File([JSON.stringify(proj)], 'p.json')
+    const result = await loadFromFile(file)
+    const shim = result.layerTypes.find((lt) => lt.name === 'shim')!
+    expect(shim.height).toBe(1)
+  })
+
+  test('rejects negative separator height', async () => {
+    const proj: PalletProject = {
+      ...baseProject,
+      layerTypes: [
+        { name: 'shim', class: 'separator', height: -1 },
+        ...baseProject.layerTypes,
+      ],
+    }
+    const file = new File([JSON.stringify(proj)], 'p.json')
+    await expect(loadFromFile(file)).rejects.toThrow('Invalid layer height')
+  })
 })
 
 describe('saveToFile', () => {
