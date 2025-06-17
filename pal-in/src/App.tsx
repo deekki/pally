@@ -370,6 +370,8 @@ function App() {
                   (l) => l.name === project.layers[selectedLayer],
                 )!
               }
+              altLayout={project.guiSettings.altLayout}
+              dimensions={project.dimensions}
               onChange={(layer) => updateLayerDef(selectedLayer, layer)}
             />
           </div>
