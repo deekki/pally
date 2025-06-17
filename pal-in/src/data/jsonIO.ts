@@ -1,6 +1,16 @@
 import { PPB_VERSION_NO } from './interfaces'
 import type { PalletProject, PatternItem } from './interfaces'
 
+const VALID_LAYER_CLASS = new Set(['layer', 'separator'])
+const VALID_LABEL_ORIENTATIONS = new Set([
+  'front',
+  'back',
+  'left',
+  'right',
+  'none',
+])
+const VALID_ALT_LAYOUTS = new Set(['default', 'alternate'])
+
 function validatePattern(
   pattern: PatternItem[] | undefined,
   width: number,
@@ -35,13 +45,37 @@ export async function loadFromFile(file: File): Promise<PalletProject> {
     data.dimensions.width <= 0 ||
     data.productDimensions.length <= 0 ||
     data.productDimensions.width <= 0 ||
-    data.productDimensions.height <= 0
+    data.productDimensions.height <= 0 ||
+    data.dimensions.maxLoadHeight < 0 ||
+    data.dimensions.palletHeight < 0 ||
+    data.productDimensions.weight < 0
   ) {
     throw new Error('Invalid dimensions')
   }
 
   if (!Array.isArray(data.layerTypes) || !Array.isArray(data.layers)) {
     throw new Error('Invalid layer data')
+  }
+
+  if (data.maxGrip !== undefined) {
+    if (typeof data.maxGrip !== 'number' || data.maxGrip < 0) {
+      throw new Error('Invalid maxGrip value')
+    }
+  }
+  if (data.maxGripAuto !== undefined && typeof data.maxGripAuto !== 'boolean') {
+    throw new Error('Invalid maxGripAuto flag')
+  }
+  if (
+    data.labelOrientation !== undefined &&
+    !VALID_LABEL_ORIENTATIONS.has(data.labelOrientation)
+  ) {
+    throw new Error('Invalid label orientation')
+  }
+  if (
+    data.guiSettings.altLayout !== undefined &&
+    !VALID_ALT_LAYOUTS.has(data.guiSettings.altLayout)
+  ) {
+    throw new Error('Invalid alt layout')
   }
 
   const typeNames = new Set<string>(
@@ -54,6 +88,12 @@ export async function loadFromFile(file: File): Promise<PalletProject> {
   }
 
   for (const lt of data.layerTypes) {
+    if (!VALID_LAYER_CLASS.has(lt.class)) {
+      throw new Error('Invalid layer class: ' + lt.class)
+    }
+    if (lt.height !== undefined && lt.height < 0) {
+      throw new Error('Invalid layer height')
+    }
     validatePattern(lt.pattern, data.dimensions.width, data.dimensions.length)
     validatePattern(lt.altPattern, data.dimensions.width, data.dimensions.length)
   }
