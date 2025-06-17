@@ -47,6 +47,14 @@ export async function loadFromFile(file: File): Promise<PalletProject> {
     throw new Error('Invalid dimensions')
   }
 
+  if (
+    data.productDimensions.boxPadding !== undefined &&
+    (typeof data.productDimensions.boxPadding !== 'number' ||
+      data.productDimensions.boxPadding < 0)
+  ) {
+    throw new Error('Invalid boxPadding value')
+  }
+
   if (!Array.isArray(data.layerTypes) || !Array.isArray(data.layers)) {
     throw new Error('Invalid layer data')
   }

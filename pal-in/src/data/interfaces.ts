@@ -16,6 +16,8 @@ export interface ProductDimensions {
   width: number
   height: number
   weight: number
+  /** optional padding added around each product box */
+  boxPadding?: number
 }
 
 export interface PatternItem {
@@ -70,6 +72,8 @@ export interface PalletProject {
   overhangSides?: number
   /** product overhang beyond pallet ends */
   overhangEnds?: number
+  /** symmetric overhang applied to both length and width */
+  overhang?: number
   guiSettings: GuiSettings
   layerTypes: LayerDefinition[]
   layers: string[]

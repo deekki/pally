@@ -20,11 +20,14 @@ const defaultProject: PalletProject = {
     width: 200,
     height: 200,
     weight: 1,
+    boxPadding: 0,
   },
   labelOrientation: 'front',
   units: 'mm',
   overhangSides: 0,
   overhangEnds: 0,
+  maxGrip: 0,
+  maxGripAuto: false,
   guiSettings: { PPB_VERSION_NO },
   layerTypes: [],
   layers: [],
@@ -66,11 +69,17 @@ function App() {
         length: convert(p.productDimensions.length),
         width: convert(p.productDimensions.width),
         height: convert(p.productDimensions.height),
+        boxPadding:
+          p.productDimensions.boxPadding !== undefined
+            ? convert(p.productDimensions.boxPadding)
+            : p.productDimensions.boxPadding,
       },
       overhangSides:
         p.overhangSides !== undefined ? convert(p.overhangSides) : p.overhangSides,
       overhangEnds:
         p.overhangEnds !== undefined ? convert(p.overhangEnds) : p.overhangEnds,
+      overhang: p.overhang !== undefined ? convert(p.overhang) : p.overhang,
+      maxGrip: p.maxGrip !== undefined ? convert(p.maxGrip) : p.maxGrip,
     }
   }
 
@@ -82,6 +91,10 @@ function App() {
         if (!proj.units) proj.units = 'mm'
         if (proj.overhangSides === undefined) proj.overhangSides = 0
         if (proj.overhangEnds === undefined) proj.overhangEnds = 0
+        if (proj.productDimensions.boxPadding === undefined)
+          proj.productDimensions.boxPadding = 0
+        if (proj.maxGrip === undefined) proj.maxGrip = 0
+        if (proj.maxGripAuto === undefined) proj.maxGripAuto = false
         setProject(proj)
         alert('Loaded project ' + proj.name)
       } catch (err) {
@@ -192,6 +205,15 @@ function App() {
           />
         </div>
         <div>
+          <label className="mr-2">Box padding</label>
+          <input
+            className="border"
+            type="number"
+            value={project.productDimensions.boxPadding}
+            onChange={(e) => updateProduct('boxPadding', e.target.valueAsNumber)}
+          />
+        </div>
+        <div>
           <label className="mr-2">Overhang sides</label>
           <input
             className="border"
@@ -237,6 +259,29 @@ function App() {
               </option>
             ))}
           </select>
+        </div>
+        <div>
+          <label className="mr-2">Max grip</label>
+          <input
+            className="border"
+            type="number"
+            value={project.maxGrip}
+            onChange={(e) =>
+              setProject((prev) => ({ ...prev, maxGrip: e.target.valueAsNumber }))
+            }
+          />
+        </div>
+        <div className="flex items-center">
+          <input
+            id="maxgripauto"
+            className="border mr-2"
+            type="checkbox"
+            checked={project.maxGripAuto}
+            onChange={(e) =>
+              setProject((prev) => ({ ...prev, maxGripAuto: e.target.checked }))
+            }
+          />
+          <label htmlFor="maxgripauto">Auto max grip</label>
         </div>
       </div>
       <div className="mb-4">
