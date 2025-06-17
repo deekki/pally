@@ -43,9 +43,11 @@ export interface LayerDefinition {
   altApproach?: string
 }
 
+export type AltLayout = 'default' | 'alternate' | 'mirror'
+
 export interface GuiSettings {
   PPB_VERSION_NO: string
-  altLayout?: string
+  altLayout?: AltLayout
   [key: string]: unknown
 }
 
