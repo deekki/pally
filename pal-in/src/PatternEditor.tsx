@@ -1,49 +1,105 @@
-import React, { useState } from 'react'
-import type { LayerDefinition, PatternItem } from './data/interfaces'
+import React, { useEffect, useRef, useState } from 'react'
+import type {
+  LayerDefinition,
+  PatternItem,
+  PalletProject,
+} from './data/interfaces'
 
 interface Props {
   layer: LayerDefinition
+  project: PalletProject
   onChange: (layer: LayerDefinition) => void
 }
+export default function PatternEditor({ layer, project, onChange }: Props) {
+  const [items, setItems] = useState<PatternItem[]>(layer.pattern ?? [])
+  const svgRef = useRef<SVGSVGElement | null>(null)
+  const [drag, setDrag] = useState<number | null>(null)
+  const dragOffset = useRef({ x: 0, y: 0 })
 
-const stringify = (p?: PatternItem[]) => (p ? JSON.stringify(p, null, 2) : '')
+  useEffect(() => {
+    setItems(layer.pattern ?? [])
+  }, [layer])
 
-export default function PatternEditor({ layer, onChange }: Props) {
-  const [patternText, setPatternText] = useState(stringify(layer.pattern))
-  const [altText, setAltText] = useState(stringify(layer.altPattern))
+  const save = (list: PatternItem[]) => {
+    setItems(list)
+    onChange({ ...layer, pattern: list })
+  }
 
-  const applyChanges = () => {
-    try {
-      const newLayer: LayerDefinition = {
-        ...layer,
-        pattern: patternText ? JSON.parse(patternText) : undefined,
-        altPattern: altText ? JSON.parse(altText) : undefined,
-      }
-      onChange(newLayer)
-    } catch {
-      alert('Invalid JSON')
-    }
+  const pxPerUnit = 300 / (project.dimensions.width + (project.overhang ?? 0))
+  const palletLength = project.dimensions.length + (project.overhang ?? 0)
+  const palletWidth = project.dimensions.width + (project.overhang ?? 0)
+
+  const boxL = project.productDimensions.length
+  const boxW = project.productDimensions.width
+
+  const clientToCoord = (e: React.PointerEvent) => {
+    const rect = svgRef.current!.getBoundingClientRect()
+    const x = (e.clientX - rect.left) / pxPerUnit
+    const y = (e.clientY - rect.top) / pxPerUnit
+    return { x, y }
+  }
+
+  const onDown = (idx: number) => (e: React.PointerEvent) => {
+    const p = clientToCoord(e)
+    dragOffset.current = { x: p.x - items[idx].x, y: p.y - items[idx].y }
+    setDrag(idx)
+    ;(e.target as Element).setPointerCapture(e.pointerId)
+  }
+
+  const onMove = (e: React.PointerEvent) => {
+    if (drag === null) return
+    const p = clientToCoord(e)
+    const x =
+      Math.max(0, Math.min(p.x - dragOffset.current.x, palletWidth - boxW))
+    const y =
+      Math.max(0, Math.min(p.y - dragOffset.current.y, palletLength - boxL))
+    const list = items.map((it, i) => (i === drag ? { ...it, x, y } : it))
+    save(list)
+  }
+
+  const onUp = (e: React.PointerEvent) => {
+    if (drag === null) return
+    ;(e.target as Element).releasePointerCapture(e.pointerId)
+    setDrag(null)
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <textarea
-        className="border p-1 font-mono text-sm"
-        rows={4}
-        value={patternText}
-        onChange={(e) => setPatternText(e.target.value)}
-        placeholder="Pattern JSON"
+    <svg
+      ref={svgRef}
+      width={palletWidth * pxPerUnit}
+      height={palletLength * pxPerUnit}
+      className="border bg-gray-50"
+      onPointerMove={onMove}
+      onPointerUp={onUp}
+      onPointerLeave={onUp}
+    >
+      {/* pallet outline */}
+      <rect
+        x={0}
+        y={0}
+        width={palletWidth * pxPerUnit}
+        height={palletLength * pxPerUnit}
+        fill="none"
+        stroke="black"
+        strokeDasharray="4 2"
       />
-      <textarea
-        className="border p-1 font-mono text-sm"
-        rows={4}
-        value={altText}
-        onChange={(e) => setAltText(e.target.value)}
-        placeholder="Alt Pattern JSON"
-      />
-      <button className="bg-blue-500 text-white px-2 py-1" onClick={applyChanges}>
-        Apply
-      </button>
-    </div>
+      {items.map((it, idx) => {
+        const w = it.r % 180 === 90 ? boxL : boxW
+        const l = it.r % 180 === 90 ? boxW : boxL
+        return (
+          <rect
+            key={idx}
+            x={it.x * pxPerUnit}
+            y={it.y * pxPerUnit}
+            width={w * pxPerUnit}
+            height={l * pxPerUnit}
+            fill="rgba(59,130,246,0.5)"
+            stroke="rgb(37,99,235)"
+            onPointerDown={onDown(idx)}
+          />
+        )
+      })}
+    </svg>
   )
 }
+

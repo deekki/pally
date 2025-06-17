@@ -370,6 +370,7 @@ function App() {
                   (l) => l.name === project.layers[selectedLayer],
                 )!
               }
+              project={project}
               onChange={(layer) => updateLayerDef(selectedLayer, layer)}
             />
           </div>
