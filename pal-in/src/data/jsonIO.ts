@@ -78,6 +78,19 @@ export async function loadFromFile(file: File): Promise<PalletProject> {
     throw new Error('Invalid alt layout')
   }
 
+  if (
+    data.overhangSides !== undefined &&
+    typeof data.overhangSides !== 'number'
+  ) {
+    throw new Error('Invalid overhangSides value')
+  }
+  if (
+    data.overhangEnds !== undefined &&
+    typeof data.overhangEnds !== 'number'
+  ) {
+    throw new Error('Invalid overhangEnds value')
+  }
+
   const typeNames = new Set<string>(
     data.layerTypes.map((lt: { name: string }) => lt.name),
   )

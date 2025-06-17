@@ -14,6 +14,8 @@
     "height": 100,
     "weight": 5
   },
+  "overhangSides": 0,
+  "overhangEnds": 0,
   "maxGrip": 0,
   "guiSettings": {
     "PPB_VERSION_NO": "3.1.1"

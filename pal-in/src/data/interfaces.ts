@@ -57,8 +57,10 @@ export interface PalletProject {
   labelOrientation?: string
   /** unit system used for dimensions */
   units?: 'mm' | 'inch'
-  /** product overhang beyond pallet edge */
-  overhang?: number
+  /** product overhang beyond pallet sides */
+  overhangSides?: number
+  /** product overhang beyond pallet ends */
+  overhangEnds?: number
   guiSettings: GuiSettings
   layerTypes: LayerDefinition[]
   layers: string[]
