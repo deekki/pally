@@ -4,7 +4,13 @@ import { PPB_VERSION_NO, type PalletProject } from './interfaces'
 const baseProject: PalletProject = {
   name: 'Test Project',
   dimensions: { length: 10, width: 10, maxLoadHeight: 50, palletHeight: 10 },
-  productDimensions: { length: 1, width: 1, height: 1, weight: 1 },
+  productDimensions: {
+    length: 1,
+    width: 1,
+    height: 1,
+    weight: 1,
+    boxPadding: 0,
+  },
   guiSettings: { PPB_VERSION_NO },
   layerTypes: [
     { name: 'layer1', class: 'layer', pattern: [{ x: 0, y: 0, r: 0 }] },
@@ -18,6 +24,7 @@ describe('loadFromFile', () => {
     const result = await loadFromFile(file)
     expect(result.name).toBe('Test Project')
     expect(result.guiSettings.PPB_VERSION_NO).toBe(PPB_VERSION_NO)
+    expect(result.productDimensions.boxPadding).toBe(0)
   })
 
   test('rejects unsupported version', async () => {
@@ -37,6 +44,15 @@ describe('loadFromFile', () => {
     const file = new File([JSON.stringify(bad)], 'p.json')
     await expect(loadFromFile(file)).rejects.toThrow('Pattern item outside pallet bounds')
   })
+
+  test('rejects invalid boxPadding', async () => {
+    const bad = {
+      ...baseProject,
+      productDimensions: { ...baseProject.productDimensions, boxPadding: -1 },
+    }
+    const file = new File([JSON.stringify(bad)], 'p.json')
+    await expect(loadFromFile(file)).rejects.toThrow('Invalid boxPadding value')
+  })
 })
 
 describe('saveToFile', () => {
@@ -49,5 +65,6 @@ describe('saveToFile', () => {
     const text = await blob.text()
     const data = JSON.parse(text)
     expect(data.guiSettings.PPB_VERSION_NO).toBe(PPB_VERSION_NO)
+    expect(data.productDimensions.boxPadding).toBe(0)
   })
 })
