@@ -384,6 +384,10 @@ function App() {
               }
               dims={project.dimensions}
               product={project.productDimensions}
+              gridSpacing={100}
+              overhang={project.overhang}
+              overhangSides={project.overhangSides}
+              overhangEnds={project.overhangEnds}
               onChange={(layer) => updateLayerDef(selectedLayer, layer)}
             />
           </div>
