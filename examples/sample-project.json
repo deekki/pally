@@ -1,6 +1,7 @@
 {
   "name": "Example Project",
   "description": "Sample project for quick testing",
+  "units": "mm",
   "dimensions": {
     "length": 1200,
     "width": 800,
