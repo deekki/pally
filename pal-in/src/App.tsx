@@ -6,6 +6,7 @@ import { PPB_VERSION_NO, LABEL_ORIENTATIONS } from './data/interfaces'
 import { productFits } from './productFit'
 import LayerList from './LayerList'
 import PatternEditor from './PatternEditor'
+import { removeLayer as removeLayerUtil } from './data/project'
 
 const MM_TO_INCH = 25.4
 
@@ -111,12 +112,7 @@ function App() {
   }
 
   const removeLayer = (index: number) => {
-    const name = project.layers[index]
-    setProject((prev) => ({
-      ...prev,
-      layers: prev.layers.filter((_, i) => i !== index),
-      layerTypes: prev.layerTypes.filter((lt) => lt.name !== name),
-    }))
+    setProject((prev) => removeLayerUtil(prev, index))
     setSelectedLayer(null)
   }
 
