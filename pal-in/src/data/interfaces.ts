@@ -47,6 +47,15 @@ export interface GuiSettings {
   [key: string]: unknown
 }
 
+export const LABEL_ORIENTATIONS = [
+  'front',
+  'back',
+  'left',
+  'right',
+  'none',
+] as const
+export type LabelOrientation = typeof LABEL_ORIENTATIONS[number]
+
 export interface PalletProject {
   name: string
   description?: string
@@ -54,7 +63,7 @@ export interface PalletProject {
   productDimensions: ProductDimensions
   maxGrip?: number
   maxGripAuto?: boolean
-  labelOrientation?: string
+  labelOrientation?: LabelOrientation
   /** unit system used for dimensions */
   units?: 'mm' | 'inch'
   /** product overhang beyond pallet sides */

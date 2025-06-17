@@ -2,7 +2,7 @@ import { useState } from 'react'
 import './App.css'
 import { loadFromFile, saveToFile } from './data/jsonIO'
 import type { PalletProject } from './data/interfaces'
-import { PPB_VERSION_NO } from './data/interfaces'
+import { PPB_VERSION_NO, LABEL_ORIENTATIONS } from './data/interfaces'
 import { productFits } from './productFit'
 
 const MM_TO_INCH = 25.4
@@ -21,7 +21,7 @@ const defaultProject: PalletProject = {
     height: 200,
     weight: 1,
   },
-  labelOrientation: '0',
+  labelOrientation: 'front',
   units: 'mm',
   overhangSides: 0,
   overhangEnds: 0,
@@ -221,14 +221,22 @@ function App() {
         </div>
         <div>
           <label className="mr-2">Label orientation</label>
-          <input
+          <select
             className="border"
-            type="text"
             value={project.labelOrientation}
             onChange={(e) =>
-              setProject((prev) => ({ ...prev, labelOrientation: e.target.value }))
+              setProject((prev) => ({
+                ...prev,
+                labelOrientation: e.target.value as (typeof LABEL_ORIENTATIONS)[number],
+              }))
             }
-          />
+          >
+            {LABEL_ORIENTATIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
       <div className="mb-4">
