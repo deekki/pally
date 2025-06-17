@@ -10,10 +10,25 @@ interface Props {
   layer: LayerDefinition
   dims: Dimensions
   product: ProductDimensions
+  /** spacing of grid lines in project units */
+  gridSpacing?: number
+  /** symmetric overhang or specific side/end values */
+  overhang?: number
+  overhangSides?: number
+  overhangEnds?: number
   onChange: (layer: LayerDefinition) => void
 }
 
-export default function PatternEditor({ layer, dims, product, onChange }: Props) {
+export default function PatternEditor({
+  layer,
+  dims,
+  product,
+  gridSpacing = 100,
+  overhang,
+  overhangSides,
+  overhangEnds,
+  onChange,
+}: Props) {
   const [items, setItems] = useState<PatternItem[]>(layer.pattern ?? [])
   const [selected, setSelected] = useState<number | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -22,6 +37,7 @@ export default function PatternEditor({ layer, dims, product, onChange }: Props)
   const SCALE = 300 / Math.max(dims.length, dims.width)
   const boxW = product.width * SCALE
   const boxH = product.length * SCALE
+  const GRID = gridSpacing
 
   useEffect(() => {
     setItems(layer.pattern ?? [])
@@ -117,6 +133,60 @@ export default function PatternEditor({ layer, dims, product, onChange }: Props)
         className="relative border bg-gray-100 mx-auto"
         style={{ width: dims.width * SCALE, height: dims.length * SCALE }}
       >
+        {/* grid overlay */}
+        <svg
+          className="absolute inset-0 pointer-events-none"
+          width={dims.width * SCALE}
+          height={dims.length * SCALE}
+        >
+          {Array.from({ length: Math.max(0, Math.floor(dims.width / GRID) - 1) }).map((_, i) => {
+            const x = (i + 1) * GRID * SCALE
+            return (
+              <line
+                key={`v${i}`}
+                x1={x}
+                y1={0}
+                x2={x}
+                y2={dims.length * SCALE}
+                stroke="#e5e7eb"
+                strokeWidth={1}
+              />
+            )
+          })}
+          {Array.from({ length: Math.max(0, Math.floor(dims.length / GRID) - 1) }).map((_, i) => {
+            const y = (i + 1) * GRID * SCALE
+            return (
+              <line
+                key={`h${i}`}
+                x1={0}
+                y1={y}
+                x2={dims.width * SCALE}
+                y2={y}
+                stroke="#e5e7eb"
+                strokeWidth={1}
+              />
+            )
+          })}
+        </svg>
+
+        {/* overhang extents */}
+        {(() => {
+          const extraW = overhangSides ?? overhang ?? 0
+          const extraL = overhangEnds ?? overhang ?? 0
+          if (extraW <= 0 && extraL <= 0) return null
+          return (
+            <div
+              className="absolute pointer-events-none border border-dashed border-red-400"
+              style={{
+                left: -(extraW / 2) * SCALE,
+                top: -(extraL / 2) * SCALE,
+                width: (dims.width + extraW) * SCALE,
+                height: (dims.length + extraL) * SCALE,
+              }}
+            />
+          )
+        })()}
+
         {items.map((item, idx) => {
           const style: React.CSSProperties = {
             position: 'absolute',
