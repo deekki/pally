@@ -20,6 +20,8 @@ const defaultProject: PalletProject = {
     height: 200,
     weight: 1,
   },
+  maxGrip: 0,
+  maxGripAuto: false,
   labelOrientation: '0',
   units: 'mm',
   overhang: 0,
@@ -182,6 +184,28 @@ function App() {
             type="number"
             value={project.productDimensions.weight}
             onChange={(e) => updateProduct('weight', e.target.valueAsNumber)}
+          />
+        </div>
+        <div>
+          <label className="mr-2">Max grip</label>
+          <input
+            className="border"
+            type="number"
+            value={project.maxGrip}
+            onChange={(e) =>
+              setProject((prev) => ({ ...prev, maxGrip: e.target.valueAsNumber }))
+            }
+          />
+        </div>
+        <div>
+          <label className="mr-2">Max grip auto</label>
+          <input
+            className="border"
+            type="checkbox"
+            checked={project.maxGripAuto}
+            onChange={(e) =>
+              setProject((prev) => ({ ...prev, maxGripAuto: e.target.checked }))
+            }
           />
         </div>
         <div>

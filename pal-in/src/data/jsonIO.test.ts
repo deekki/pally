@@ -37,6 +37,12 @@ describe('loadFromFile', () => {
     const file = new File([JSON.stringify(bad)], 'p.json')
     await expect(loadFromFile(file)).rejects.toThrow('Pattern item outside pallet bounds')
   })
+
+  test('rejects non-integer maxGrip', async () => {
+    const bad = { ...baseProject, maxGrip: 1.5 }
+    const file = new File([JSON.stringify(bad)], 'p.json')
+    await expect(loadFromFile(file)).rejects.toThrow('Invalid maxGrip value')
+  })
 })
 
 describe('saveToFile', () => {
@@ -49,5 +55,18 @@ describe('saveToFile', () => {
     const text = await blob.text()
     const data = JSON.parse(text)
     expect(data.guiSettings.PPB_VERSION_NO).toBe(PPB_VERSION_NO)
+  })
+
+  test('includes maxGrip fields', async () => {
+    const proj: PalletProject = {
+      ...baseProject,
+      maxGrip: 3,
+      maxGripAuto: true,
+    }
+    const blob = saveToFile(proj)
+    const text = await blob.text()
+    const data = JSON.parse(text)
+    expect(data.maxGrip).toBe(3)
+    expect(data.maxGripAuto).toBe(true)
   })
 })

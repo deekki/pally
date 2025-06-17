@@ -58,7 +58,11 @@ export async function loadFromFile(file: File): Promise<PalletProject> {
   }
 
   if (data.maxGrip !== undefined) {
-    if (typeof data.maxGrip !== 'number' || data.maxGrip < 0) {
+    if (
+      typeof data.maxGrip !== 'number' ||
+      !Number.isInteger(data.maxGrip) ||
+      data.maxGrip < 0
+    ) {
       throw new Error('Invalid maxGrip value')
     }
   }
