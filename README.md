@@ -32,3 +32,7 @@ npm run build
 ## Example Project
 
 A sample pallet project JSON is provided in `examples/sample-project.json`. Load this file in the demo application to quickly verify that loading and saving work.
+
+When creating your own JSON files, include a `"units"` field at the top level to
+choose between millimetres (`"mm"`) and inches (`"inch"`). All dimension values
+use these units.
