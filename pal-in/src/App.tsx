@@ -3,6 +3,7 @@ import './App.css'
 import { loadFromFile, saveToFile } from './data/jsonIO'
 import type { PalletProject } from './data/interfaces'
 import { PPB_VERSION_NO } from './data/interfaces'
+import { productFits } from './productFit'
 
 const MM_TO_INCH = 25.4
 
@@ -31,6 +32,7 @@ const defaultProject: PalletProject = {
 
 function App() {
   const [project, setProject] = useState<PalletProject>(defaultProject)
+  const fits = productFits(project)
 
   const updateDimensions = (key: keyof typeof project.dimensions, value: number) => {
     setProject((prev) => ({
@@ -236,9 +238,15 @@ function App() {
           {project.dimensions.maxLoadHeight}
         </p>
       </div>
+      {!fits && (
+        <p className="text-red-500 mb-2">
+          Product dimensions exceed pallet size plus allowed overhang
+        </p>
+      )}
       <button
         className="bg-blue-500 text-white px-4 py-2 rounded"
         onClick={handleSave}
+        disabled={!fits}
       >
         Zapisz
       </button>
