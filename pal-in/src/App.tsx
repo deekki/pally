@@ -371,6 +371,8 @@ function App() {
                   (l) => l.name === project.layers[selectedLayer],
                 )!
               }
+              dims={project.dimensions}
+              product={project.productDimensions}
               onChange={(layer) => updateLayerDef(selectedLayer, layer)}
             />
           </div>
