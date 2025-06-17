@@ -140,6 +140,13 @@ function App() {
     setSelectedLayer((sel) => (sel === index ? index + 1 : sel === index + 1 ? index : sel))
   }
 
+  const changeLayer = (index: number, name: string) => {
+    setProject((prev) => {
+      const layers = prev.layers.map((l, i) => (i === index ? name : l))
+      return { ...prev, layers }
+    })
+  }
+
   const updateLayerDef = (index: number, layer: LayerDefinition) => {
     setProject((prev) => {
       const types = prev.layerTypes.map((lt) => (lt.name === prev.layers[index] ? layer : lt))
@@ -358,7 +365,9 @@ function App() {
         <LayerList
           layers={project.layers}
           layerDefs={Object.fromEntries(project.layerTypes.map((lt) => [lt.name, lt]))}
+          layerTypes={project.layerTypes.map((lt) => lt.name)}
           onSelect={setSelectedLayer}
+          onChange={changeLayer}
           selected={selectedLayer}
           moveUp={moveLayerUp}
           moveDown={moveLayerDown}
