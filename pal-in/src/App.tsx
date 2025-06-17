@@ -22,7 +22,8 @@ const defaultProject: PalletProject = {
   },
   labelOrientation: '0',
   units: 'mm',
-  overhang: 0,
+  overhangSides: 0,
+  overhangEnds: 0,
   guiSettings: { PPB_VERSION_NO },
   layerTypes: [],
   layers: [],
@@ -64,7 +65,10 @@ function App() {
         width: convert(p.productDimensions.width),
         height: convert(p.productDimensions.height),
       },
-      overhang: p.overhang !== undefined ? convert(p.overhang) : p.overhang,
+      overhangSides:
+        p.overhangSides !== undefined ? convert(p.overhangSides) : p.overhangSides,
+      overhangEnds:
+        p.overhangEnds !== undefined ? convert(p.overhangEnds) : p.overhangEnds,
     }
   }
 
@@ -74,7 +78,8 @@ function App() {
       try {
         const proj = await loadFromFile(file)
         if (!proj.units) proj.units = 'mm'
-        if (proj.overhang === undefined) proj.overhang = 0
+        if (proj.overhangSides === undefined) proj.overhangSides = 0
+        if (proj.overhangEnds === undefined) proj.overhangEnds = 0
         setProject(proj)
         alert('Loaded project ' + proj.name)
       } catch (err) {
@@ -185,13 +190,30 @@ function App() {
           />
         </div>
         <div>
-          <label className="mr-2">Overhang</label>
+          <label className="mr-2">Overhang sides</label>
           <input
             className="border"
             type="number"
-            value={project.overhang}
+            value={project.overhangSides}
             onChange={(e) =>
-              setProject((prev) => ({ ...prev, overhang: e.target.valueAsNumber }))
+              setProject((prev) => ({
+                ...prev,
+                overhangSides: e.target.valueAsNumber,
+              }))
+            }
+          />
+        </div>
+        <div>
+          <label className="mr-2">Overhang ends</label>
+          <input
+            className="border"
+            type="number"
+            value={project.overhangEnds}
+            onChange={(e) =>
+              setProject((prev) => ({
+                ...prev,
+                overhangEnds: e.target.valueAsNumber,
+              }))
             }
           />
         </div>
