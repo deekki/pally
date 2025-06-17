@@ -346,6 +346,7 @@ function App() {
       <div className="mb-4 max-w-md mx-auto">
         <LayerList
           layers={project.layers}
+          layerDefs={Object.fromEntries(project.layerTypes.map((lt) => [lt.name, lt]))}
           onSelect={setSelectedLayer}
           selected={selectedLayer}
           moveUp={moveLayerUp}
