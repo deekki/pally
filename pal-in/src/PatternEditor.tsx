@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import type { LayerDefinition, PatternItem } from './data/interfaces'
 
 interface Props {

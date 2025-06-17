@@ -86,8 +86,8 @@ function App() {
     }
   }
 
-  const addLayer = () => {
-    const base = 'layer'
+  const addLayer = (cls: 'layer' | 'separator') => {
+    const base = cls === 'layer' ? 'layer' : 'separator'
     let n = project.layerTypes.length + 1
     let name = `${base}${n}`
     const existing = new Set(project.layerTypes.map((l) => l.name))
@@ -95,7 +95,10 @@ function App() {
       n += 1
       name = `${base}${n}`
     }
-    const newLayer: LayerDefinition = { name, class: 'layer', pattern: [] }
+    const newLayer: LayerDefinition =
+      cls === 'layer'
+        ? { name, class: 'layer', pattern: [] }
+        : { name, class: 'separator', height: 1 }
     setProject((prev) => ({
       ...prev,
       layerTypes: [...prev.layerTypes, newLayer],
@@ -351,8 +354,24 @@ function App() {
           moveUp={moveLayerUp}
           moveDown={moveLayerDown}
         />
-        <div className="mt-2 flex gap-2">
-          <button className="border px-2 py-1" onClick={addLayer}>Add</button>
+        <div className="mt-2 flex gap-2 items-center">
+          <select
+            className="border px-2 py-1"
+            defaultValue=""
+            onChange={(e) => {
+              const val = e.target.value as 'layer' | 'separator' | ''
+              if (val) {
+                addLayer(val)
+                e.target.value = ''
+              }
+            }}
+          >
+            <option value="" disabled>
+              Add...
+            </option>
+            <option value="layer">New layer with boxes</option>
+            <option value="separator">Separator</option>
+          </select>
           {selectedLayer !== null && (
             <button
               className="border px-2 py-1"
@@ -362,7 +381,9 @@ function App() {
             </button>
           )}
         </div>
-        {selectedLayer !== null && (
+        {selectedLayer !== null &&
+          project.layerTypes.find((l) => l.name === project.layers[selectedLayer])!
+            .class === 'layer' && (
           <div className="mt-2">
             <PatternEditor
               layer={

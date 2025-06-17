@@ -1,5 +1,3 @@
-import React from 'react'
-
 interface LayerListProps {
   layers: string[]
   onSelect: (index: number) => void
