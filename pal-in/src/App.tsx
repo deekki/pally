@@ -384,6 +384,16 @@ function App() {
               }
               dims={project.dimensions}
               product={project.productDimensions}
+              overhangSides={
+                project.overhangSides !== undefined
+                  ? project.overhangSides
+                  : project.overhang ?? 0
+              }
+              overhangEnds={
+                project.overhangEnds !== undefined
+                  ? project.overhangEnds
+                  : project.overhang ?? 0
+              }
               onChange={(layer) => updateLayerDef(selectedLayer, layer)}
             />
           </div>

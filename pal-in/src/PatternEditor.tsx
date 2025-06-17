@@ -10,18 +10,39 @@ interface Props {
   layer: LayerDefinition
   dims: Dimensions
   product: ProductDimensions
+  /** allowed overhang past pallet sides (width) */
+  overhangSides?: number
+  /** allowed overhang past pallet ends (length) */
+  overhangEnds?: number
   onChange: (layer: LayerDefinition) => void
 }
 
-export default function PatternEditor({ layer, dims, product, onChange }: Props) {
+export default function PatternEditor({
+  layer,
+  dims,
+  product,
+  overhangSides = 0,
+  overhangEnds = 0,
+  onChange,
+}: Props) {
   const [items, setItems] = useState<PatternItem[]>(layer.pattern ?? [])
   const [selected, setSelected] = useState<number | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
   // pixels per unit
-  const SCALE = 300 / Math.max(dims.length, dims.width)
+  const SCALE = 300 / Math.max(dims.length + overhangEnds, dims.width + overhangSides)
   const boxW = product.width * SCALE
   const boxH = product.length * SCALE
+
+  // allowed area taking overhang into account
+  const allowedWidth = dims.width + overhangSides
+  const allowedLength = dims.length + overhangEnds
+  const offsetX = overhangSides / 2
+  const offsetY = overhangEnds / 2
+  const minX = -offsetX
+  const minY = -offsetY
+  const maxX = allowedWidth - product.width
+  const maxY = allowedLength - product.length
 
   useEffect(() => {
     setItems(layer.pattern ?? [])
@@ -61,8 +82,10 @@ export default function PatternEditor({ layer, dims, product, onChange }: Props)
   const handleContainerClick = (e: React.MouseEvent) => {
     if (e.target !== containerRef.current) return
     const rect = containerRef.current!.getBoundingClientRect()
-    const x = (e.clientX - rect.left) / SCALE
-    const y = (e.clientY - rect.top) / SCALE
+    let x = (e.clientX - rect.left) / SCALE - offsetX
+    let y = (e.clientY - rect.top) / SCALE - offsetY
+    x = Math.min(Math.max(x, minX), maxX)
+    y = Math.min(Math.max(y, minY), maxY)
     const newItem: PatternItem = { x, y, r: 0, f: 1 }
     setItems((arr) => [...arr, newItem])
   }
@@ -84,7 +107,11 @@ export default function PatternEditor({ layer, dims, product, onChange }: Props)
     const dy = (e.clientY - startY) / SCALE
     setItems((arr) => {
       const copy = [...arr]
-      copy[index] = { ...copy[index], x: itemX + dx, y: itemY + dy }
+      let x = itemX + dx
+      let y = itemY + dy
+      x = Math.min(Math.max(x, minX), maxX)
+      y = Math.min(Math.max(y, minY), maxY)
+      copy[index] = { ...copy[index], x, y }
       return copy
     })
   }
@@ -115,13 +142,13 @@ export default function PatternEditor({ layer, dims, product, onChange }: Props)
         ref={containerRef}
         onClick={handleContainerClick}
         className="relative border bg-gray-100 mx-auto"
-        style={{ width: dims.width * SCALE, height: dims.length * SCALE }}
+        style={{ width: allowedWidth * SCALE, height: allowedLength * SCALE }}
       >
         {items.map((item, idx) => {
           const style: React.CSSProperties = {
             position: 'absolute',
-            left: item.x * SCALE,
-            top: item.y * SCALE,
+            left: (item.x + offsetX) * SCALE,
+            top: (item.y + offsetY) * SCALE,
             width: boxW,
             height: boxH,
             background: 'rgba(59,130,246,0.3)',
@@ -138,6 +165,15 @@ export default function PatternEditor({ layer, dims, product, onChange }: Props)
             />
           )
         })}
+        <div
+          className="absolute border-dashed border-red-500 pointer-events-none"
+          style={{
+            left: offsetX * SCALE,
+            top: offsetY * SCALE,
+            width: dims.width * SCALE,
+            height: dims.length * SCALE,
+          }}
+        />
       </div>
       <button
         className="bg-red-500 text-white px-2 py-1"
