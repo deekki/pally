@@ -4,17 +4,26 @@ import type {
   PatternItem,
   Dimensions,
   ProductDimensions,
+  AltLayout,
 } from './data/interfaces'
 
 interface Props {
   layer: LayerDefinition
   dims: Dimensions
   product: ProductDimensions
+  altLayout?: AltLayout
   onChange: (layer: LayerDefinition) => void
 }
 
-export default function PatternEditor({ layer, dims, product, onChange }: Props) {
+export default function PatternEditor({
+  layer,
+  dims,
+  product,
+  altLayout = 'default',
+  onChange,
+}: Props) {
   const [items, setItems] = useState<PatternItem[]>(layer.pattern ?? [])
+  const [editingAlt, setEditingAlt] = useState(false)
   const [selected, setSelected] = useState<number | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -23,13 +32,40 @@ export default function PatternEditor({ layer, dims, product, onChange }: Props)
   const boxW = product.width * SCALE
   const boxH = product.length * SCALE
 
-  useEffect(() => {
-    setItems(layer.pattern ?? [])
-  }, [layer.pattern])
+  const generateAltPattern = (
+    pattern: PatternItem[],
+    layout: AltLayout,
+  ): PatternItem[] => {
+    switch (layout) {
+      case 'mirror':
+        return pattern.map((it) => ({
+          ...it,
+          x: dims.width - it.x - product.width,
+          r: (360 - (it.r ?? 0)) % 360,
+        }))
+      case 'alternate':
+        return pattern.map((it) => ({
+          ...it,
+          x: dims.width - it.x - product.width,
+          y: dims.length - it.y - product.length,
+          r: ((it.r ?? 0) + 180) % 360,
+        }))
+      default:
+        return [...pattern]
+    }
+  }
 
   useEffect(() => {
-    onChange({ ...layer, pattern: items })
-  }, [items])
+    setItems(editingAlt ? layer.altPattern ?? [] : layer.pattern ?? [])
+  }, [layer.pattern, layer.altPattern, editingAlt])
+
+  useEffect(() => {
+    if (editingAlt) {
+      onChange({ ...layer, altPattern: items })
+    } else {
+      onChange({ ...layer, pattern: items })
+    }
+  }, [items, editingAlt])
 
   // Keyboard handlers for selected item
   useEffect(() => {
@@ -111,6 +147,30 @@ export default function PatternEditor({ layer, dims, product, onChange }: Props)
 
   return (
     <div className="flex flex-col gap-2">
+      <div className="flex gap-2">
+        <button
+          className={`border px-2 py-1 ${!editingAlt ? 'bg-blue-200' : ''}`}
+          onClick={() => setEditingAlt(false)}
+        >
+          Pattern
+        </button>
+        <button
+          className={`border px-2 py-1 ${editingAlt ? 'bg-blue-200' : ''}`}
+          onClick={() => setEditingAlt(true)}
+        >
+          Alt Pattern
+        </button>
+        {editingAlt && (
+          <button
+            className="border px-2 py-1"
+            onClick={() =>
+              setItems(generateAltPattern(layer.pattern ?? [], altLayout))
+            }
+          >
+            Auto
+          </button>
+        )}
+      </div>
       <div
         ref={containerRef}
         onClick={handleContainerClick}

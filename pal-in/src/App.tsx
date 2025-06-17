@@ -384,6 +384,7 @@ function App() {
               }
               dims={project.dimensions}
               product={project.productDimensions}
+              altLayout={project.guiSettings.altLayout}
               onChange={(layer) => updateLayerDef(selectedLayer, layer)}
             />
           </div>
