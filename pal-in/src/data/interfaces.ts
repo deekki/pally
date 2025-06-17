@@ -55,6 +55,10 @@ export interface PalletProject {
   maxGrip?: number
   maxGripAuto?: boolean
   labelOrientation?: string
+  /** unit system used for dimensions */
+  units?: 'mm' | 'inch'
+  /** product overhang beyond pallet edge */
+  overhang?: number
   guiSettings: GuiSettings
   layerTypes: LayerDefinition[]
   layers: string[]
