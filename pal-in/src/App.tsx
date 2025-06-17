@@ -114,25 +114,26 @@ function App() {
     setSelectedLayer(null)
   }
 
-  const moveLayerUp = (index: number) => {
-    if (index === 0) return
+  const moveLayer = (from: number, to: number) => {
     setProject((prev) => {
       const arr = [...prev.layers]
-      ;[arr[index - 1], arr[index]] = [arr[index], arr[index - 1]]
+      if (from < 0 || from >= arr.length || to < 0 || to >= arr.length) return prev
+      const [item] = arr.splice(from, 1)
+      arr.splice(to, 0, item)
       return { ...prev, layers: arr }
     })
-    setSelectedLayer((sel) => (sel === index ? index - 1 : sel === index - 1 ? index : sel))
+    setSelectedLayer((sel) => {
+      if (sel === null) return sel
+      if (sel === from) return to
+      if (sel > from && sel <= to) return sel - 1
+      if (sel < from && sel >= to) return sel + 1
+      return sel
+    })
   }
 
-  const moveLayerDown = (index: number) => {
-    if (index === project.layers.length - 1) return
-    setProject((prev) => {
-      const arr = [...prev.layers]
-      ;[arr[index + 1], arr[index]] = [arr[index], arr[index + 1]]
-      return { ...prev, layers: arr }
-    })
-    setSelectedLayer((sel) => (sel === index ? index + 1 : sel === index + 1 ? index : sel))
-  }
+  const moveLayerUp = (index: number) => moveLayer(index, index - 1)
+
+  const moveLayerDown = (index: number) => moveLayer(index, index + 1)
 
   const updateLayerDef = (index: number, layer: LayerDefinition) => {
     setProject((prev) => {
@@ -350,6 +351,7 @@ function App() {
           selected={selectedLayer}
           moveUp={moveLayerUp}
           moveDown={moveLayerDown}
+          reorder={moveLayer}
         />
         <div className="mt-2 flex gap-2">
           <button className="border px-2 py-1" onClick={addLayer}>Add</button>
