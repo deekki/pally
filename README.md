@@ -20,6 +20,12 @@ Run the development server:
 npm run dev
 ```
 
+Run the unit tests verifying JSON import/export logic:
+
+```bash
+npm test
+```
+
 ## Build
 
 Create a production build:
