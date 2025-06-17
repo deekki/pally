@@ -1,5 +1,5 @@
 import { loadFromFile, saveToFile } from './jsonIO'
-import { PPB_VERSION_NO, type PalletProject } from './interfaces'
+import { PPB_VERSION_NO, type PalletProject, type GuiSettings } from './interfaces'
 
 const baseProject: PalletProject = {
   name: 'Test Project',
@@ -109,7 +109,7 @@ describe('saveToFile', () => {
   test('produces json blob with version', async () => {
     const proj: PalletProject = {
       ...baseProject,
-      guiSettings: {} as any,
+      guiSettings: {} as GuiSettings,
     }
     const blob = saveToFile(proj)
     const text = await blob.text()
