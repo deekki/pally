@@ -3,6 +3,7 @@ import './App.css'
 import { loadFromFile, saveToFile } from './data/jsonIO'
 import type { PalletProject } from './data/interfaces'
 import { PPB_VERSION_NO } from './data/interfaces'
+import { convertProjectUnits } from './convertProjectUnits'
 
 const MM_TO_INCH = 25.4
 
@@ -28,6 +29,7 @@ const defaultProject: PalletProject = {
   layers: [],
 }
 
+
 function App() {
   const [project, setProject] = useState<PalletProject>(defaultProject)
 
@@ -43,29 +45,6 @@ function App() {
       ...prev,
       productDimensions: { ...prev.productDimensions, [key]: value },
     }))
-  }
-
-  const convertProjectUnits = (p: PalletProject, to: 'mm' | 'inch'): PalletProject => {
-    if (p.units === to) return p
-    const factor = to === 'mm' ? MM_TO_INCH : 1 / MM_TO_INCH
-    const convert = (n: number) => parseFloat((n * factor).toFixed(2))
-    return {
-      ...p,
-      units: to,
-      dimensions: {
-        length: convert(p.dimensions.length),
-        width: convert(p.dimensions.width),
-        maxLoadHeight: convert(p.dimensions.maxLoadHeight),
-        palletHeight: convert(p.dimensions.palletHeight),
-      },
-      productDimensions: {
-        ...p.productDimensions,
-        length: convert(p.productDimensions.length),
-        width: convert(p.productDimensions.width),
-        height: convert(p.productDimensions.height),
-      },
-      overhang: p.overhang !== undefined ? convert(p.overhang) : p.overhang,
-    }
   }
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
