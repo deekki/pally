@@ -134,6 +134,21 @@ function App() {
     setSelectedLayer((sel) => (sel === index ? index + 1 : sel === index + 1 ? index : sel))
   }
 
+  const changeLayerRef = (index: number, name: string) => {
+    setProject((prev) => {
+      const currentType = prev.layerTypes.find((lt) => lt.name === prev.layers[index])
+      const newType = prev.layerTypes.find((lt) => lt.name === name)
+      if (currentType && newType && currentType.class !== newType.class) {
+        if (!confirm('Switching between layer and separator types may be incompatible. Continue?')) {
+          return prev
+        }
+      }
+      const arr = [...prev.layers]
+      arr[index] = name
+      return { ...prev, layers: arr }
+    })
+  }
+
   const updateLayerDef = (index: number, layer: LayerDefinition) => {
     setProject((prev) => {
       const types = prev.layerTypes.map((lt) => (lt.name === prev.layers[index] ? layer : lt))
@@ -346,7 +361,9 @@ function App() {
       <div className="mb-4 max-w-md mx-auto">
         <LayerList
           layers={project.layers}
+          types={project.layerTypes.map((lt) => lt.name)}
           onSelect={setSelectedLayer}
+          onChange={changeLayerRef}
           selected={selectedLayer}
           moveUp={moveLayerUp}
           moveDown={moveLayerDown}
