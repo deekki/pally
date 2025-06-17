@@ -9,7 +9,8 @@ describe('productFits', () => {
     guiSettings: { PPB_VERSION_NO },
     layerTypes: [],
     layers: [],
-    overhang: 0,
+    overhangSides: 0,
+    overhangEnds: 0,
   }
 
   test('fits when within pallet size', () => {
@@ -24,7 +25,7 @@ describe('productFits', () => {
   test('allows overhang', () => {
     const p = {
       ...base,
-      overhang: 20,
+      overhangSides: 20,
       productDimensions: { ...base.productDimensions, width: 110 },
     }
     expect(productFits(p)).toBe(true)
@@ -33,7 +34,7 @@ describe('productFits', () => {
   test('fails if overhang insufficient', () => {
     const p = {
       ...base,
-      overhang: 5,
+      overhangEnds: 5,
       productDimensions: { ...base.productDimensions, length: 110 },
     }
     expect(productFits(p)).toBe(false)
