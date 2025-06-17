@@ -3,7 +3,7 @@ import type { PalletProject, PatternItem } from './interfaces'
 
 const VALID_LAYER_CLASS = new Set(['layer', 'separator'])
 const VALID_LABEL_ORIENTATIONS = new Set(LABEL_ORIENTATIONS)
-const VALID_ALT_LAYOUTS = new Set(['default', 'alternate'])
+const VALID_ALT_LAYOUTS = new Set(['default', 'alternate', 'mirror'])
 
 function validatePattern(
   pattern: PatternItem[] | undefined,

@@ -27,6 +27,16 @@ describe('loadFromFile', () => {
     expect(result.productDimensions.boxPadding).toBe(0)
   })
 
+  test('accepts mirror altLayout', async () => {
+    const proj = {
+      ...baseProject,
+      guiSettings: { ...baseProject.guiSettings, altLayout: 'mirror' },
+    }
+    const file = new File([JSON.stringify(proj)], 'p.json')
+    const result = await loadFromFile(file)
+    expect(result.guiSettings.altLayout).toBe('mirror')
+  })
+
   test('rejects unsupported version', async () => {
     const bad = { ...baseProject, guiSettings: { PPB_VERSION_NO: '0.0.0' } }
     const file = new File([JSON.stringify(bad)], 'p.json')
